@@ -3,7 +3,7 @@ FROM php:7.2-alpine
 LABEL version="1.0"
 LABEL maintainer="Jean-Baptiste Delhommeau <jeanbadel@gmail.com>"
 
-RUN apk --no-cache add git openssh bash tini nodejs-npm
+RUN apk --no-cache add git openssh bash tini nodejs-npm rsync
 
 RUN echo "memory_limit=-1" > "$PHP_INI_DIR/conf.d/memory-limit.ini" \
  && echo "date.timezone=${PHP_TIMEZONE:-UTC}" > "$PHP_INI_DIR/conf.d/date_timezone.ini"
