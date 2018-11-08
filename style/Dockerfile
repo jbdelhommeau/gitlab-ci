@@ -5,6 +5,11 @@ LABEL maintainer="Jean-Baptiste Delhommeau <jeanbadel@gmail.com>"
 
 RUN apk --no-cache add git openssh bash tini nodejs-npm rsync
 
+# Install intl
+RUN apk add --no-cache icu-dev \
+      && docker-php-ext-configure intl \
+      && docker-php-ext-install intl
+
 RUN echo "memory_limit=-1" > "$PHP_INI_DIR/conf.d/memory-limit.ini" \
  && echo "date.timezone=${PHP_TIMEZONE:-UTC}" > "$PHP_INI_DIR/conf.d/date_timezone.ini"
 
