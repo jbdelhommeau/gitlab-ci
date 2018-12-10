@@ -1,14 +1,40 @@
 FROM php:7.2-alpine
 
-LABEL version="1.0"
+LABEL version="1.1"
 LABEL maintainer="Jean-Baptiste Delhommeau <jeanbadel@gmail.com>"
 
 RUN apk --no-cache add git openssh bash tini nodejs-npm rsync
 
-# Install intl
-RUN apk add --no-cache icu-dev \
-      && docker-php-ext-configure intl \
-      && docker-php-ext-install intl
+# Install php lib
+RUN set -eux; \
+    apk add --no-cache --virtual .build-deps \
+    $PHPIZE_DEPS \
+    gettext-dev \
+    icu-dev \
+    postgresql-dev \
+    zlib-dev \
+    icu-libs \
+    ; \
+    docker-php-ext-install \
+    gettext \
+    intl \
+    pcntl \
+    pdo_pgsql \
+    zip \
+    ;\
+    runDeps="$( \
+    scanelf --needed --nobanner --format '%n#p' --recursive /usr/local/lib/php/extensions \
+    | tr ',' '\n' \
+    | sort -u \
+    | awk 'system("[ -e /usr/local/lib/" $1 " ]") == 0 { next } { print "so:" $1 }' \
+    )"; \
+    apk add --no-cache --virtual .phpexts-rundeps $runDeps; \
+    \
+    apk del .build-deps
+
+#Clean tmp dir
+RUN rm -rf /var/cache/apk/* && \
+    rm -rf /tmp/*
 
 RUN echo "memory_limit=-1" > "$PHP_INI_DIR/conf.d/memory-limit.ini" \
  && echo "date.timezone=${PHP_TIMEZONE:-UTC}" > "$PHP_INI_DIR/conf.d/date_timezone.ini"
