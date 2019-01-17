@@ -21,6 +21,7 @@ RUN set -eux; \
     pcntl \
     pdo_pgsql \
     zip \
+    bcmath \
     ;\
     runDeps="$( \
     scanelf --needed --nobanner --format '%n#p' --recursive /usr/local/lib/php/extensions \
