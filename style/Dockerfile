@@ -3,7 +3,7 @@ FROM php:7.2-alpine
 LABEL version="1.2"
 LABEL maintainer="Jean-Baptiste Delhommeau <jeanbadel@gmail.com>"
 
-RUN apk --no-cache add git openssh bash tini nodejs-npm rsync make
+RUN apk --no-cache add git openssh bash tini nodejs-npm rsync make postgresql-client
 
 # Install php lib
 RUN set -eux; \
