@@ -1,9 +1,7 @@
-FROM php:7.2-alpine
+FROM php:7.3-alpine
 
-LABEL version="1.2"
-LABEL maintainer="Jean-Baptiste Delhommeau <jeanbadel@gmail.com>"
 
-RUN apk --no-cache add git openssh bash tini nodejs-npm rsync make postgresql-client
+RUN apk --no-cache add git openssh bash nodejs-npm yarn rsync make postgresql-client
 
 # Install php lib
 RUN set -eux; \
@@ -12,8 +10,7 @@ RUN set -eux; \
     gettext-dev \
     icu-dev \
     postgresql-dev \
-    zlib-dev \
-    icu-libs \
+    libzip-dev \
     ; \
     docker-php-ext-install \
     gettext \
@@ -41,32 +38,15 @@ ENV COMPOSER_CACHE_DIR=/tmp/.docker_composer
 ENV COMPOSER_MEMORY_LIMIT=-1
 ENV COMPOSER_ALLOW_SUPERUSER 1
 
-RUN set -eux; \
-    composer global require "symfony/flex" --prefer-dist --no-progress --no-suggest --classmap-authoritative
-
 # Install PHPUnit
-RUN curl -SL "https://phar.phpunit.de/phpunit-6.5.phar" -o /usr/local/bin/phpunit \
+RUN curl -SL "https://phar.phpunit.de/phpunit-8.phar" -o /usr/local/bin/phpunit \
 	&& chmod +x /usr/local/bin/phpunit
 
-# Install PHP-CS & PHP-CS-Fixer
-RUN cd /usr/local/bin \
-    && curl -sL https://squizlabs.github.io/PHP_CodeSniffer/phpcs.phar -o phpcs \
-    && chmod +x phpcs \
-    && curl -sL http://cs.sensiolabs.org/download/php-cs-fixer-v2.phar -o php-cs-fixer \
-    && chmod +x php-cs-fixer
-
-
-RUN npm i -g eclint --cache /tmp/npm-cache
+RUN npm i -g eclint bower grunt --cache /tmp/npm-cache
 
 RUN mkdir -p ~/.ssh
-
-# Not check host for ssh connection
 RUN echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
-
-#Clean tmp dir
-RUN rm -rf /var/cache/apk/* && \
-    rm -rf /tmp/*
 
 WORKDIR /app
 
-ENTRYPOINT ["/sbin/tini", "--"]
+CMD ["echo"]
