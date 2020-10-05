@@ -20,6 +20,13 @@ RUN set -eux; \
     zip \
     bcmath \
     ;\
+    pecl install \
+	pcov \
+    ; \
+    pecl clear-cache; \
+    docker-php-ext-enable \
+	pcov \
+    ; \    
     runDeps="$( \
     scanelf --needed --nobanner --format '%n#p' --recursive /usr/local/lib/php/extensions \
     | tr ',' '\n' \
@@ -29,13 +36,6 @@ RUN set -eux; \
     apk add --no-cache --virtual .phpexts-rundeps $runDeps; \
     \
     apk del .build-deps
-
-ARG XDEBUG_VERSION=2.9.2
-RUN set -eux; \
-	apk add --no-cache --virtual .build-deps $PHPIZE_DEPS; \
-	pecl install xdebug-$XDEBUG_VERSION; \
-	docker-php-ext-enable xdebug; \
-	apk del .build-deps
 
 RUN echo "memory_limit=-1" > "$PHP_INI_DIR/conf.d/memory-limit.ini" \
  && echo "date.timezone=${PHP_TIMEZONE:-UTC}" > "$PHP_INI_DIR/conf.d/date_timezone.ini"
